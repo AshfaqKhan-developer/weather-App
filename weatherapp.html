@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Weather App</h1>
+    <form
+      onsubmit="
+        getWeatherData();
+        return false;
+      "
+    >
+      <input type="text" id="city" name="city" placeholder="Enter city name" />
+      <button type="submit">check</button>
+    </form>
+    <div id="display-res"></div>
+
+    <script>
+      function getWeatherData() {
+        const displayRes = document.querySelector("#display-res");
+        const cityRef = document.querySelector("#city");
+        const city = cityRef.value.trim();
+
+        if (!city) {
+          displayRes.textContent = "Enter a city name";
+          return;
+        }
+        const weatherApi = fetch(
+          `https://p2pclouds.up.railway.app/v1/learn/weather?city=${city}`,
+        );
+        weatherApi
+          .then((getData) => {
+            console.log(getData);
+            return getData.json();
+          })
+          .then((data) => {
+            displayRes.innerHTML = `
+            <p>Results for <b> ${city}</b></p>
+            <h1> ${data.current.feelslike_c} <sup>°C|°F
+             </sup>  </h1>
+             <p>Precipitation: ${data.current.precip_in} %</p>
+            <p>Humidity: ${data.current.humidity} %</p>
+            <p>Wind: ${data.current.wind_kph} km/h</p>
+           <p>Temperature | Precipitation | Wind</p>
+           `;
+          })
+          .catch((err) => {
+            displayRes.textContent = "Invalid city or API error ";
+          });
+      }
+    </script>
+  </body>
+</html>
