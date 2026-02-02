@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        font-family:
+          "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Weather App</h1>
+    <form
+      onsubmit="
+        getWeatherData();
+        return false;
+      "
+    >
+      <input type="text" id="city" name="city" placeholder="Enter city name" />
+      <button type="submit">check</button>
+    </form>
+    <div id="display-res"></div>
+    <div id="current-update" style="display: none">
+      <p>
+        <span onclick="getTempDetails()" id="temp">Temperature </span> |
+        <span onclick="getPrecDetails()" id="precipitation">Precipitation</span
+        >|
+        <span onclick="getWindDetails()" id="wind">Wind</span>
+      </p>
+    </div>
+
+    <script>
+      let weatherData = null;
+      async function getWeatherData() {
+        const displayRes = document.querySelector("#display-res");
+        const currentUpdate = document.querySelector("#current-update");
+        try {
+          const cityRef = document.querySelector("#city");
+          const city = cityRef.value.trim();
+          if (!city) {
+            displayRes.textContent = "Enter a city name";
+            return;
+          }
+          const weatherApi = await fetch(
+            `https://p2pclouds.up.railway.app/v1/learn/weather?city=${city}`,
+          );
+          const data = await weatherApi.json();
+          weatherData = data;
+          displayRes.innerHTML = `
+          <p>Results for <b> ${city}</b></p>
+          <h1> ${data.current.feelslike_c} <sup>°C|°F
+          </sup>  </h1>
+         <p>Precipitation: ${data.current.precip_mm} %</p>
+          <p>Humidity: ${data.current.humidity} %</p>
+         <p>Wind: ${data.current.wind_kph} km/h</p> `;
+          currentUpdate.style.display = "block";
+        } catch (err) {
+          displayRes.textContent = "Invalid city or API error ";
+        }
+      }
+
+      function getTempDetails() {
+        const tempRef = document.querySelector("#temp");
+        tempRef.innerHTML = `<h2>Temperature</h2> <p> Temperature in Celsius ${weatherData.current.temp_c} °C</p>
+    <p> Temperature in Fahrenheit ${weatherData.current.temp_f} °F</p>
+  `;
+      }
+      function getPrecDetails() {
+        const precipitationRef = document.querySelector("#precipitation");
+        precipitationRef.innerHTML = `<h2>Precipitation</h2>
+    <p>${weatherData.current.precip_mm} mm</p>
+    <p>Humidity: ${weatherData.current.humidity}%</p>
+  `;
+      }
+      function getWindDetails() {
+        const windRef = document.querySelector("#wind");
+        windRef.innerHTML = ` <h2>Wind</h2>
+    <p>${weatherData.current.wind_kph} km/h</p>
+    <p>Direction: ${weatherData.current.wind_dir}</p>
+  `;
+      }
+    </script>
+  </body>
+</html>
